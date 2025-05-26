@@ -1,13 +1,20 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+import { createApp } from 'vue';
+import App from './App.vue';
+import { createRouter, createWebHistory } from 'vue-router';
+import { routes } from './router';
+import { createVuetify } from 'vuetify';
+import 'vuetify/styles';
+import { aliases, mdi } from 'vuetify/iconsets/mdi-svg';
+import * as components from 'vuetify/components';
+import * as directives from 'vuetify/directives';
+import '@mdi/font/css/materialdesignicons.css';
 
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
+const app = createApp(App);
 
-import '@mdi/font/css/materialdesignicons.css'
-import { aliases, mdi } from 'vuetify/iconsets/mdi'
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+});
 
 const vuetify = createVuetify({
   components,
@@ -15,10 +22,10 @@ const vuetify = createVuetify({
   icons: {
     defaultSet: 'mdi',
     aliases,
-    sets: {
-      mdi,
-    },
+    sets: { mdi },
   },
-})
+});
 
-createApp(App).use(vuetify).mount('#app')
+app.use(router);
+app.use(vuetify);
+app.mount('#app');

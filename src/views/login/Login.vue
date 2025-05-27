@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { login } from '../../services/auth';
+import { login, getMyProfile } from '../../services/auth';
 
 const email = ref('');
 const password = ref('');
@@ -28,6 +28,10 @@ const handleLogin = async () => {
     loading.value = true;
     const response = await login(email.value, password.value);
     localStorage.setItem('token', response.data.access_token);
+    const profile = await getMyProfile();
+    localStorage.setItem('user_id', profile.data.id);
+    localStorage.setItem('user_name', profile.data.name);
+    localStorage.setItem('user_email', profile.data.email);
     router.push('/');
   } catch (error) {
     console.error('Erro no login', error);

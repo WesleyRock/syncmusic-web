@@ -15,3 +15,7 @@ export const getUser = () => {
 export const logout = () => {
   return api.post('/logout');
 };
+
+export const getMyProfile = () => {
+  return api.get('/me');
+};

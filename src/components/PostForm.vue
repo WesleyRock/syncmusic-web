@@ -1,7 +1,6 @@
 
 <template>
   <v-dialog v-model="dialog" width="600">
-    <!-- FAB Button como ativador -->
     <template v-slot:activator="{ props }">
       <v-btn
         v-bind="props"

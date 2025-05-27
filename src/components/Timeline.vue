@@ -70,8 +70,13 @@
         </v-btn>
         <span class="text_white">{{ post.comments_count }}</span>
 
-         <v-btn icon color="white">
-          <v-icon>mdi-bookmark-outline</v-icon>
+        <v-btn 
+          icon 
+          :color="post.isSaved ? 'green' : 'white'"
+          @click="toggleSave(post)" 
+          >
+            <v-icon v-if="post.isSaved">mdi-bookmark</v-icon>
+            <v-icon v-else>mdi-bookmark-outline</v-icon>
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -88,6 +93,7 @@ import { likePost, unlikePost } from '../services/like';
 import emitter from '../eventBus';
 import { computed } from 'vue';
 import { useSearchStore } from '../stores/search';
+import { toggleSaved } from '../services/saved';
 
 
 dayjs.extend(relativeTime);
@@ -148,6 +154,15 @@ const handleDelete = async (postId: number) => {
     posts.value = posts.value.filter(p => p.id !== postId);
   } catch (error) {
     console.error('Erro ao deletar post', error);
+  }
+};
+
+const toggleSave = async (post: any) => {
+  try {
+    await toggleSaved(post.id);
+    post.isSaved = !post.isSaved;
+  } catch (error) {
+    console.error('Erro ao salvar:', error);
   }
 };
 

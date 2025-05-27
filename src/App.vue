@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <AppBar v-if="route.name !== 'Login'" />
-    <v-main>
+    <v-main class="background">
       <router-view />
     </v-main>
   </v-app>
@@ -28,5 +28,9 @@ const route = useRoute();
 }
 .logo.vue:hover {
   filter: drop-shadow(0 0 2em #42b883aa);
+}
+
+.background {
+  background-color: #18181c;
 }
 </style>

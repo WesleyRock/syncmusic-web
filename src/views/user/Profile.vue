@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="bg_color">
+  <v-container fluid>
     <v-card class="pa-4 ma-10" rounded="lg" color="black">
       <v-card-title class="text-h4 mb-6 font-weight-bold ">Meu Perfil</v-card-title>
       <v-row align="center">

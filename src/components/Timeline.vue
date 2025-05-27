@@ -1,16 +1,28 @@
 <template>
   <v-container>
-    <v-card class="mb-4 pa-4 card_background" v-for="post in posts" :key="post.id">
-      <v-row no-gutters align="center">
-        <v-avatar size="48">
-          <v-img :src="post.user.avatar"></v-img>
-        </v-avatar>
-        <div class="ml-3">
-          <div class="font-weight-bold text_white">{{ post.user.name }}</div>
-          <div class="text-caption text_white">{{ dayjs(post.created_at).fromNow() }}</div>
-        </div>
+    <v-card class="mb-4 pa-4 card_background" v-for="post in filteredPosts" :key="post.id">
+      <v-row align="center">
+        <v-col cols="6" class="d-flex">
+          <v-avatar size="48">
+            <v-img :src="post.user.avatar"></v-img>
+          </v-avatar>
+          <div class="ml-3">
+            <div class="font-weight-bold text_white">{{ post.user.name }}</div>
+            <div class="text-caption text_white">{{ dayjs(post.created_at).fromNow() }}</div>
+          </div>
+        </v-col>
+        <v-col cols="6">
+          <div class="ml-3 d-flex justify-end">
+            <v-btn
+              icon
+              color="black"
+              v-if="post.user.id === currentUserId"
+              @click="handleDelete(post.id)">
+                <v-icon v-icon color="red">mdi-delete-outline</v-icon>
+            </v-btn>
+          </div>
+        </v-col>
       </v-row>
-
       <v-card-text class="mt-2 text_white">
         <div>{{ post.content }}</div>
 
@@ -68,12 +80,15 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { getPosts } from '../services/post';
+import { getPosts, deletePost  } from '../services/post';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/pt-br';
 import { likePost, unlikePost } from '../services/like';
 import emitter from '../eventBus';
+import { computed } from 'vue';
+import { useSearchStore } from '../stores/search';
+
 
 dayjs.extend(relativeTime);
 dayjs.locale('pt-br');
@@ -82,6 +97,8 @@ const fav = ref(false)
 const posts = ref<any[]>([]);
 const likedPosts = ref<number[]>([]);
 const isPostLiked = (postId: number) => likedPosts.value.includes(postId);
+const currentUserId = Number(localStorage.getItem('user_id'));
+const searchStore = useSearchStore();
 
 const fetchPosts = async () => {
   try {
@@ -91,6 +108,16 @@ const fetchPosts = async () => {
     console.error('Erro ao buscar posts', error);
   }
 };
+
+const filteredPosts = computed(() => {
+  if (!searchStore.search) {
+    return posts.value;
+  }
+  return posts.value.filter(post =>
+    post.content.toLowerCase().includes(searchStore.search.toLowerCase()) ||
+    post.user.name.toLowerCase().includes(searchStore.search.toLowerCase())
+  );
+});
 
 const toggleLike = async (post: any) => {
   try {
@@ -112,6 +139,15 @@ const toggleLike = async (post: any) => {
     } else {
       console.error('Erro ao curtir/descurtir', error);
     }
+  }
+};
+
+const handleDelete = async (postId: number) => {
+  try {
+    await deletePost(postId);
+    posts.value = posts.value.filter(p => p.id !== postId);
+  } catch (error) {
+    console.error('Erro ao deletar post', error);
   }
 };
 

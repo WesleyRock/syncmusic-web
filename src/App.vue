@@ -1,8 +1,18 @@
 <template>
-  <router-view />
+  <v-app>
+    <AppBar v-if="route.name !== 'Login'" />
+    <v-main>
+      <router-view />
+    </v-main>
+  </v-app>
 </template>
 
 <script lang="ts" setup>
+import AppBar from './components/AppBar.vue';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+
 </script>
 
 

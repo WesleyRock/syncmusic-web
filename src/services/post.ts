@@ -7,3 +7,7 @@ export const getPosts = () => {
 export const createPost = (payload: { content: string; music?: string | null }) => {
   return api.post('/posts', payload);
 };
+
+export const deletePost = (postId: number) => {
+  return api.delete(`/posts/${postId}`);
+};

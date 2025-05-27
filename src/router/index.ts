@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from '@/views/home/Home.vue';
 import Login from '@/views/login/Login.vue';
-//import Register from '@/views/auth/Register.vue';
 import Timeline from '@/components/Timeline.vue';
+import Profile from '../views/user/Profile.vue';
 
 const routes = [
    {
@@ -17,17 +17,18 @@ const routes = [
     meta: { requiresAuth: true },
 
   },
-  //{
-  //  path: '/register',
-  //  name: 'Register',
-  //  component: Register,
-  //},
   {
     path: '/timeline',
     name: 'Timeline',
     component: Timeline,
     meta: { requiresAuth: true },
   },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: Profile,
+    meta: { requiresAuth: true },
+}
 ];
 
 const router = createRouter({
@@ -41,7 +42,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login');
   } else if ((to.path === '/login' || to.path === '/register') && isAuthenticated) {
-    next('/home');
+    next('/');
   } else {
     next();
   }

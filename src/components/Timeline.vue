@@ -130,20 +130,27 @@ const toggleLike = async (post: any) => {
     if (isPostLiked(post.id)) {
       await unlikePost(post.id);
       likedPosts.value = likedPosts.value.filter((id) => id !== post.id);
-      post.likes_count--;
+      post.likes_count = Math.max(post.likes_count - 1, 0); // Evita número negativo
     } else {
       await likePost(post.id);
       likedPosts.value.push(post.id);
       post.likes_count++;
     }
   } catch (error: any) {
-    if (error.response && error.response.status === 409) {
-      console.warn('Post já estava curtido, atualizando estado...');
-      if (!isPostLiked(post.id)) {
-        likedPosts.value.push(post.id);
+    if (error.response) {
+      const status = error.response.status;
+
+      if (status === 409) {
+        console.warn('Post já estava curtido, sincronizando estado...');
+        if (!isPostLiked(post.id)) {
+          likedPosts.value.push(post.id);
+          post.likes_count++;
+        }
+      } else {
+        console.error('Erro na requisição:', error.response.data);
       }
     } else {
-      console.error('Erro ao curtir/descurtir', error);
+      console.error('Erro desconhecido:', error);
     }
   }
 };

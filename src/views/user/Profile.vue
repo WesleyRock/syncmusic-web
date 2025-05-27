@@ -33,9 +33,10 @@
           </v-col>
           <v-col cols="12">
             <p class="font-weight-bold title_color">Descrição</p>
-            <v-textarea class="mr-10" label="Digite!" variant="solo-filled" bg-color="#18181c"></v-textarea>
+            <v-textarea v-model="profile.description" class="mr-10" label="Digite!" variant="solo-filled" bg-color="#18181c"></v-textarea>
           </v-col>
         </v-row>
+        <v-btn color="green" @click="handleUpdate">Salvar</v-btn>
       </v-row>
     </v-card>
     <v-card color="black" class="mx-15">
@@ -69,13 +70,26 @@
 </template>
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { fetchMyProfile } from '../../services/user';
+import { fetchMyProfile, updateProfile } from '../../services/user';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 const profile = ref<any>({ posts: [] });
 dayjs.extend(relativeTime);
 dayjs.locale('pt-br');
+
+const handleUpdate = async () => {
+  try {
+    await updateProfile({
+      name: profile.value.name,
+      email: profile.value.email,
+      description: profile.value.description,
+    });
+    alert('Perfil atualizado com sucesso!');
+  } catch (error) {
+    console.error('Erro ao atualizar perfil:', error);
+  }
+};
 
 onMounted(async () => {
  const { data } = await fetchMyProfile();

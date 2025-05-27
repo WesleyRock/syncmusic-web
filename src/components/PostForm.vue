@@ -39,36 +39,41 @@
       </v-card-text>
 
       <v-card-actions class="justify-end">
-        <v-btn color="#4caf50" class="text-body-1" @click="sendPost">Postar</v-btn>
+        <v-btn color="#4caf50" class="text-body-1" @click="handlePost">Postar</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
+import { createPost } from '../services/post';
+import emitter from '../eventBus';
 
-const dialog = ref(false)
-const content = ref('')
-const music = ref('')
+const dialog = ref(false);
+const content = ref('');
+const music = ref('');
 
-const sendPost = () => {
-  if (!content.value) {
-    alert('O texto do post não pode estar vazio.')
-    return
+const handlePost = async () => {
+  if (!content.value) return;
+
+  try {
+    await createPost({
+      content: content.value,
+      music: music.value || null,
+    });
+
+    // Emite o evento para atualizar a timeline
+    emitter.emit('postCreated');
+
+    // Reset
+    content.value = '';
+    music.value = '';
+    dialog.value = false;
+  } catch (error) {
+    console.error('Erro ao criar post', error);
   }
-
-  console.log('Post enviado:', {
-    content: content.value,
-    music: music.value,
-    createdAt: new Date(),
-  })
-
-  // Limpa os campos
-  content.value = ''
-  music.value = ''
-  dialog.value = false
-}
+};
 </script>
 
 <style scoped>

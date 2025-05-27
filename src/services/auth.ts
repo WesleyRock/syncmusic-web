@@ -1,30 +1,17 @@
 import api from './api';
-import type { UserType } from './../types/UserType';
-import type { LoginType } from '../types/LoginType';
 
-export async function login(payload: LoginType): Promise<void> {
-  try {
-    await api.get('/sanctum/csrf-cookie');
+export const login = (email: string, password: string) => {
+  return api.post('/login', { email, password });
+};
 
-    await api.post('/api/login', payload);
-  } catch (error: any) {
-    throw error.response?.data || error;
-  }
-}
+export const register = (name: string, email: string, password: string) => {
+  return api.post('/register', { name, email, password });
+};
 
-export async function getUser(): Promise<UserType> {
-  try {
-    const response = await api.get<UserType>('/api/user');
-    return response.data;
-  } catch (error: any) {
-    throw error.response?.data || error;
-  }
-}
+export const getUser = () => {
+  return api.get('/user');
+};
 
-export async function logout(): Promise<void> {
-  try {
-    await api.post('/api/logout');
-  } catch (error: any) {
-    throw error.response?.data || error;
-  }
-}
+export const logout = () => {
+  return api.post('/logout');
+};

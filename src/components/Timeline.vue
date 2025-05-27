@@ -13,6 +13,9 @@
         </v-col>
         <v-col cols="6">
           <div class="ml-3 d-flex justify-end">
+            <v-btn icon color="black" @click="openEditDialog(post)">
+              <v-icon>mdi-pencil</v-icon>
+            </v-btn>
             <v-btn
               icon
               color="black"
@@ -80,6 +83,28 @@
         </v-btn>
       </v-card-actions>
     </v-card>
+    <v-dialog v-model="editDialog" width="500">
+      <v-card color="black">
+        <v-card-title class="text-h6 green_main">
+          Editar Publicação
+        </v-card-title>
+
+        <v-card-text>
+          <v-textarea
+            v-model="editedContent"
+            label="Conteúdo"
+            auto-grow
+            counter="280"
+            maxlength="280"
+          />
+        </v-card-text>
+
+        <v-card-actions class="justify-end">
+          <v-btn text @click="editDialog = false">Cancelar</v-btn>
+          <v-btn color="#4caf50" @click="handleEdit">Salvar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -94,17 +119,20 @@ import emitter from '../eventBus';
 import { computed } from 'vue';
 import { useSearchStore } from '../stores/search';
 import { toggleSaved } from '../services/saved';
-
+import { updatePost } from '../services/post'
 
 dayjs.extend(relativeTime);
 dayjs.locale('pt-br');
 
-const fav = ref(false)
 const posts = ref<any[]>([]);
 const likedPosts = ref<number[]>([]);
 const isPostLiked = (postId: number) => likedPosts.value.includes(postId);
 const currentUserId = Number(localStorage.getItem('user_id'));
 const searchStore = useSearchStore();
+
+const editDialog = ref(false)
+const editedContent = ref('')
+const editingPostId = ref<number | null>(null)
 
 const fetchPosts = async () => {
   try {
@@ -170,6 +198,26 @@ const toggleSave = async (post: any) => {
     post.isSaved = !post.isSaved;
   } catch (error) {
     console.error('Erro ao salvar:', error);
+  }
+};
+
+const openEditDialog = (post: any) => {
+  editingPostId.value = post.id
+  editedContent.value = post.content
+  editDialog.value = true
+}
+
+const handleEdit = async () => {
+  if (!editingPostId.value) return;
+
+  try {
+    await updatePost(editingPostId.value, { content: editedContent.value });
+    const post = posts.value.find(p => p.id === editingPostId.value);
+    if (post) post.content = editedContent.value;
+
+    editDialog.value = false;
+  } catch (error) {
+    console.error('Erro ao atualizar post:', error);
   }
 };
 

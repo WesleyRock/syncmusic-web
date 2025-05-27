@@ -39,9 +39,9 @@
           <v-card min-width="300" class="subcard">
             <v-list class="subcard">
               <v-list-item
-                prepend-avatar="https://cdn.vuetifyjs.com/images/john.jpg"
-                subtitle="@santhewes"
-                title="Wesley Rock"
+                prepend-avatar="https:\/\/i.pravatar.cc\/150?img=3"
+                subtitle="wesley@example.com"
+                title="Wesley"
               >
               </v-list-item>
             </v-list>

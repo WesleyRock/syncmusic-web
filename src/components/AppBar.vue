@@ -5,13 +5,9 @@
     >
       <v-container class="d-flex justify-center align-center bar-margin">
         <v-row>
-          <v-col cols="2" class="d-flex mt-2"  @click="goToHome" style="cursor: pointer;">
+          <v-col cols="5" class="d-flex mt-2"  @click="goToHome" style="cursor: pointer;">
             <v-icon class="ml-5 mr-1" size="x-large" color="green">mdi-spotify</v-icon>
             <v-app-bar-title>SyncMusic</v-app-bar-title>
-          </v-col>
-          <v-col cols="3" class="d-flex mt-3">
-            <h4>Suporte</h4>
-            <h4 class="ml-5">Feedback</h4>
           </v-col>
           <v-col cols="7" class="d-flex justify-end">
            <v-text-field
@@ -94,8 +90,7 @@ const searchStore = useSearchStore();
 
 const items = [
   { text: 'Meu Perfil', icon: 'mdi-account-outline', to: '/profile'},
-  { text: 'Salvos', icon: 'mdi-bookmark-multiple-outline' },
-  { text: 'Configurações', icon: 'mdi-cog' }
+  { text: 'Salvos', icon: 'mdi-bookmark-multiple-outline', to: '/saved'},
 ]
 
 const goToHome = () => {

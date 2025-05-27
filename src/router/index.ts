@@ -3,6 +3,7 @@ import Home from '@/views/home/Home.vue';
 import Login from '@/views/login/Login.vue';
 import Timeline from '@/components/Timeline.vue';
 import Profile from '../views/user/Profile.vue';
+import Saved from '../views/user/Saved.vue';
 
 const routes = [
    {
@@ -28,7 +29,13 @@ const routes = [
     name: 'Profile',
     component: Profile,
     meta: { requiresAuth: true },
-}
+  },
+  {
+    path: '/saved',
+    name: 'Saved',
+    component: Saved,
+    meta: { requiresAuth: true },
+  }
 ];
 
 const router = createRouter({

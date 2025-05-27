@@ -70,12 +70,10 @@
           </v-list>
           <v-divider></v-divider>
            <v-list class="subcard">
-              <v-list-item
-                title="Sair"
-              >
-                  <template v-slot:prepend>
-                <v-icon icon="mdi-logout "></v-icon>
-              </template>
+              <v-list-item title="Sair" @click="handleLogout" style="cursor: pointer;">
+                <template v-slot:prepend>
+                  <v-icon>mdi-logout</v-icon>
+                </template>
               </v-list-item>
             </v-list>
         </v-card>
@@ -95,7 +93,18 @@
 <script lang="ts" setup>
 import Timeline from '@/components/Timeline.vue'
 import PostForm from '../../components/PostForm.vue'
+import router from '../../router';
 import { ref } from 'vue'
+import { logout } from '../../services/auth.ts'; // sua função logout que chama a API
+
+async function handleLogout() {
+  try {
+    await logout();
+    router.push('/login') 
+  } catch (error) {
+    console.error('Erro no logout:', error);
+  }
+}
 
 const menu = ref(false)
  const items = [

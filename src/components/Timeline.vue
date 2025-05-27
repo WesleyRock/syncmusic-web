@@ -7,7 +7,7 @@
         </v-avatar>
         <div class="ml-3">
           <div class="font-weight-bold text_white">{{ post.user.name }}</div>
-          <div class="text-caption text_white">{{ post.time }}</div>
+          <div class="text-caption text_white">{{ dayjs(post.created_at).fromNow() }}</div>
         </div>
       </v-row>
 
@@ -47,18 +47,16 @@
 
       <v-card-actions>
         <v-btn
-          :class="fav ? 'text-red' : 'text-white'"
-          icon="mdi-heart"
+          :icon="isPostLiked(post.id) ? 'mdi-heart' : 'mdi-heart-outline'"
+          :color="isPostLiked(post.id) ? 'red' : 'white'"
           variant="text"
-          @click="fav = !fav"
-                  >
-        </v-btn>
-        <span class="text_white">{{ post.likes }}</span>
-
+          @click="toggleLike(post)"
+        ></v-btn>
+        <span class="text_white">{{ post.likes_count }}</span>
         <v-btn icon color="white">
           <v-icon>mdi-comment-outline</v-icon>
         </v-btn>
-        <span class="text_white">{{ post.comments }}</span>
+        <span class="text_white">{{ post.comments_count }}</span>
 
          <v-btn icon color="white">
           <v-icon>mdi-bookmark-outline</v-icon>
@@ -69,53 +67,64 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue';
+import { getPosts } from '../services/post';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/pt-br';
+import { likePost, unlikePost } from '../services/like';
+import emitter from '../eventBus';
 
-const posts = [
-  {
-    id: 1,
-    user: { name: 'Wesley', avatar: 'https://i.pravatar.cc/150?img=3' },
-    time: '5 minutos atrás',
-    content: 'Curtindo muito essa playlist hoje!',
-    music: { 
-      nameMusic: 'Halcyon Days', 
-      nameArtist: 'Ellie Goulding', 
-      image: 'https://cdn.vuetifyjs.com/images/cards/halcyon.png', 
-      colorCard: '#952175'
-    },
-    likes: 12,
-    comments: 4,
-  },
-  {
-    id: 2,
-    user: { name: 'Ana', avatar: 'https://i.pravatar.cc/150?img=5' },
-    time: '2 horas atrás',
-    content: 'Essa música me salvou hoje 🔥',
-    music: { 
-        nameMusic: 'Supermodel', 
-        nameArtist: 'Foster the People', 
-        image: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg', 
-        colorCard: '#1F7087'
-      },
-    likes: 20,
-    comments: 5,
-  },
-  {
-    id: 3,
-    user: { name: 'Lucas', avatar: 'https://i.pravatar.cc/150?img=8' },
-    time: 'Ontem',
-    content: 'Descobri esse som hoje e já virou vício 🎧',
-    music: { 
-        nameMusic: 'Midnight Queen', 
-        nameArtist: 'Sarcófago', 
-        image: 'https://i.pinimg.com/736x/3d/80/b9/3d80b941218f367b53dbdc1d4b621111.jpg', 
-        colorCard: '#01074e'
-      },
-    likes: 30,
-    comments: 8,
-  },
-]
+dayjs.extend(relativeTime);
+dayjs.locale('pt-br');
+
 const fav = ref(false)
+const posts = ref<any[]>([]);
+const likedPosts = ref<number[]>([]);
+const isPostLiked = (postId: number) => likedPosts.value.includes(postId);
+
+const fetchPosts = async () => {
+  try {
+    const response = await getPosts();
+    posts.value = response.data;
+  } catch (error) {
+    console.error('Erro ao buscar posts', error);
+  }
+};
+
+const toggleLike = async (post: any) => {
+  try {
+    if (isPostLiked(post.id)) {
+      await unlikePost(post.id);
+      likedPosts.value = likedPosts.value.filter((id) => id !== post.id);
+      post.likes_count--;
+    } else {
+      await likePost(post.id);
+      likedPosts.value.push(post.id);
+      post.likes_count++;
+    }
+  } catch (error: any) {
+    if (error.response && error.response.status === 409) {
+      console.warn('Post já estava curtido, atualizando estado...');
+      if (!isPostLiked(post.id)) {
+        likedPosts.value.push(post.id);
+      }
+    } else {
+      console.error('Erro ao curtir/descurtir', error);
+    }
+  }
+};
+
+onMounted(fetchPosts);
+
+
+onMounted(() => {
+  emitter.on('postCreated', fetchPosts);
+});
+
+onUnmounted(() => {
+  emitter.off('postCreated', fetchPosts);
+});
 
 </script>
 

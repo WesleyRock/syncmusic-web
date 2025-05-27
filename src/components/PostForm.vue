@@ -30,12 +30,72 @@
           maxlength="280"
         ></v-textarea>
 
-        <v-text-field
-          v-model="music"
-          label="Escolha uma Música (opcional)"
-          prepend-inner-icon="mdi-music"
-        ></v-text-field>
+       <!--<v-text-field
+          v-model="searchQuery"
+          append-inner-icon="mdi-magnify"
+          label="Buscar música"
+           @update:search-input="handleSearch"
+          variant="solo"
+          bg-color="#18181c"
+          class="mb-4"
+        />
+
+        <v-list v-if="searchResults.length">
+          <v-list-item
+            v-for="(track, index) in searchResults"
+            :key="index"
+          >
+            <v-avatar>
+              <v-img :src="track.album.images[0]?.url"></v-img>
+            </v-avatar>
+
+            <v-list-item-title>{{ track.name }}</v-list-item-title>
+            <v-list-item-subtitle>
+              {{ track.artists[0]?.name }}
+            </v-list-item-subtitle>
+
+            <template v-slot:append>
+              <v-btn
+                icon="mdi-play"
+                v-if="track.preview_url"
+                :href="track.preview_url"
+                target="_blank"
+                variant="text"
+              ></v-btn>
+              <v-btn
+                icon="mdi-spotify"
+                :href="track.external_urls.spotify"
+                target="_blank"
+                variant="text"
+              ></v-btn>
+            </template>
+          </v-list-item>
+        </v-list>-->
       </v-card-text>
+
+      <v-autocomplete
+        v-model="selectedMusic"
+        :items="searchResults"
+        item-title="name"
+        item-value="id"
+        label="Selecione uma música"
+        placeholder="Busque por nome ou artista"
+        :loading="loading"
+        bg-color="#18181c"
+        clearable
+        append-inner-icon="mdi-magnify"
+        @click:append-inner="handleSearch"
+      >
+        <template v-slot:item="{ item, props }">
+          <v-list-item v-bind="props">
+            <v-list-item-avatar>
+              <v-img :src="item.raw.album.images[0]?.url" />
+            </v-list-item-avatar>
+            <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
+            <v-list-item-subtitle>{{ item.raw.artists[0]?.name }}</v-list-item-subtitle>
+          </v-list-item>
+        </template>
+      </v-autocomplete>
 
       <v-card-actions class="justify-end">
         <v-btn color="#4caf50" class="text-body-1" @click="handlePost">Postar</v-btn>
@@ -48,10 +108,35 @@
 import { ref } from 'vue';
 import { createPost } from '../services/post';
 import emitter from '../eventBus';
+import { searchMusic } from '../services/spotify';
+import type { TrackType } from '../types/TrackType';
 
 const dialog = ref(false);
 const content = ref('');
 const music = ref('');
+
+const searchQuery = ref('');
+const searchResults = ref<TrackType[]>([]);
+const selectedMusic = ref<any>(null);
+const loading = ref(false);
+
+
+const handleSearch = async (query: string) => {
+  if (!query) {
+    searchResults.value = [];
+    return;
+  }
+
+  loading.value = true;
+  try {
+    const results = await searchMusic(query);
+    searchResults.value = results;
+  } catch (error) {
+    console.error('Erro na busca de músicas', error);
+  } finally {
+    loading.value = false;
+  }
+};
 
 const handlePost = async () => {
   if (!content.value) return;
@@ -73,6 +158,8 @@ const handlePost = async () => {
     console.error('Erro ao criar post', error);
   }
 };
+
+
 </script>
 
 <style scoped>
